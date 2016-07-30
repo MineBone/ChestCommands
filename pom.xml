@@ -6,7 +6,7 @@
 
     <groupId>com.gmail.filoghost</groupId>
     <artifactId>chestcommands</artifactId>
-    <version>3.1.5-SNAPSHOT</version>
+    <version>3.1.5-CUSTOM</version>
 
     <name>ChestCommands</name>
     <description>A powerful plugin that allows you to create beautiful GUI in your Bukkit server.</description>
@@ -34,56 +34,60 @@
         <project.jdkVersion>1.7</project.jdkVersion>
         <project.authors>filoghost</project.authors>
         <project.softDepend>Vault, BarAPI, PlayerPoints</project.softDepend>
-        <project.mainClass>${project.groupId}.${project.artifactId}.${bukkitplugin.name}</project.mainClass>
+        <project.bukkitplugin.name>ChestCommands</project.bukkitplugin.name>
+        <project.mainClass>${project.groupId}.${project.artifactId}.${project.bukkitplugin.name}</project.mainClass>
 
         <!-- Change Bukkit Version HERE! -->
         <bukkit.version>1.10-R0.1-SNAPSHOT</bukkit.version>
     </properties>
 
     <build>
-        <finalName>${project.finalName}-${project.version}</finalName>
-
+        <defaultGoal>clean install</defaultGoal>
+        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
         <resources>
             <resource>
-                <directory>src/main/resources/</directory>
+                <targetPath>.</targetPath>
                 <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+                <includes>
+                    <include>*.*</include>
+                </includes>
             </resource>
         </resources>
 
         <plugins>
-            <!-- Maven Java Compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>${project.jdkVersion}</source>
-                    <target>${project.jdkVersion}</target>
-                </configuration>
-            </plugin>
-            <!-- Libs Shading and Relocation -->
+            <!-- Shade the necessary libs -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <relocations>
-                        <relocation>
-                            <pattern>org.mcstats</pattern>
-                            <shadedPattern>${project.groupId}.${project.artifactId}</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!--<minimizeJar>true</minimizeJar> -->
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <artifactSet>
+                                <includes>
+                                    <!-- .com dependencies -->
+                                    <include>com.gmail.filoghost:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-            <!-- Javadocs settings -->
+            <!-- Gotta go after shade plugin -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
-                    <show>public</show>
-                    <failOnError>false</failOnError>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
         </plugins>
@@ -94,12 +98,6 @@
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots</url>
-        </repository>
-
-        <!-- Metrics Repo -->
-        <repository>
-            <id>metrics-repo</id>
-            <url>http://repo.mcstats.org/content/repositories/public</url>
         </repository>
 
         <!-- Vault Repo -->
@@ -122,40 +120,6 @@
     </repositories>
 
     <dependencies>
-        <!-- Bukkit API, http://www.spigotmc.org/ or http://bukkit.org/ -->
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>${bukkit.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>junit</artifactId>
-                    <groupId>junit</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>persistence-api</artifactId>
-                    <groupId>javax.persistence</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>gson</artifactId>
-                    <groupId>com.google.code.gson</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>snakeyaml</artifactId>
-                    <groupId>org.yaml</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- Metrics API -->
-        <dependency>
-            <groupId>org.mcstats.bukkit</groupId>
-            <artifactId>metrics-lite</artifactId>
-            <version>R8-SNAPSHOT</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
 
         <!-- Vault, http://dev.bukkit.org/bukkit-plugins/vault/ -->
         <dependency>
@@ -169,6 +133,14 @@
                     <artifactId>bukkit</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!--Bukkit API-->
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- BarAPI, http://dev.bukkit.org/bukkit-plugins/bar-api/ -->
